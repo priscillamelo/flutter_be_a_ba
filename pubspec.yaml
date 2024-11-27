@@ -1,0 +1,33 @@
+name: flutter_be_a_ba
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flame: ^1.21.0
+  flame_splash_screen: ^0.3.1
+  flutter:
+    sdk: flutter
+  flutter_native_splash: ^2.4.2
+  image: ^4.3.0
+  video_player: ^2.9.2
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  android: true
+  ios: true
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/videos/
