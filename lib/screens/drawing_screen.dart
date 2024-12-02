@@ -16,24 +16,12 @@ class DrawingScreen extends StatefulWidget {
 }
 
 class _DrawingScreenState extends State<DrawingScreen> {
+  final Image imageBackground = Image.asset('assets/images/quadro_drawing.png');
+  final GlobalKey _paintKey = GlobalKey();
+
   List<Offset> pointsUser = [];
   ui.Image? letterImage;
-  // Pontos do traço tracejado
-  List<Offset> dashedTrace = [
-    Offset(10, 20),
-    Offset(30, 40),
-  ];
 
-  final Image imageBackground = Image.asset('assets/images/quadro_drawing.png');
-  final GlobalKey _paintKey = GlobalKey(); // Adiciona um GlobalKey
-
-  List<Offset> letraA = [
-    Offset(50, 100),
-    Offset(100, 50),
-    Offset(150, 100),
-    Offset(100, 200),
-    Offset(100, 150),
-  ];
   late GlobalKey globalKeyTrace;
   late GlobalKey globalKeyUser;
 
@@ -69,13 +57,13 @@ class _DrawingScreenState extends State<DrawingScreen> {
       ),
       body: LayoutBuilder(builder: (context, constraints) {
         return Stack(children: [
-          // Letra Tracejada
+          // Criação de Imagem a partir do widget CustomPaint da letra tracejada
           WidgetToImage(onImageBuilder: (key) {
             globalKeyTrace = key;
             return Center(
               child: CustomPaint(
-                key: _paintKey, // Adiciona o GlobalKey
-                size: const Size(300, 300), // Tamanho fixo do CustomPaint
+                key: _paintKey,
+                size: const Size(400, 400), // Tamanho fixo do CustomPaint
                 painter: DashedLetterComponent(letter: "A"),
               ),
             );
@@ -83,13 +71,13 @@ class _DrawingScreenState extends State<DrawingScreen> {
           Center(
             child: imageBackground,
           ),
-          // Área de Desenho (GestureDetector cobrindo tudo)
+
+          // Criação de Imagem a partir do widget CustomPaint do desenho do usuário
           WidgetToImage(onImageBuilder: (key) {
             globalKeyUser = key;
             return GestureDetector(
               onPanUpdate: (details) {
                 setState(() {
-                  // Obtemos o RenderBox associado ao CustomPaint
                   final RenderBox renderBox =
                       _paintKey.currentContext!.findRenderObject() as RenderBox;
 
@@ -106,7 +94,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
               },
               child: Center(
                 child: CustomPaint(
-                  size: const Size(300, 300), // Mesmo tamanho do CustomPaint
+                  size: const Size(400, 400), // Mesmo tamanho do CustomPaint
                   painter: DrawingLetterUser(
                     points: pointsUser,
                     color: Colors.blue,
@@ -153,8 +141,8 @@ class _DrawingScreenState extends State<DrawingScreen> {
     }
 
     // Calcula os pixels cobertos
-    int totalPixels1 = 0;
-    int totalPixels2 = 0;
+    int totalPixelsLetterDashed = 0;
+    int totalPixelsLetterUser = 0;
     int coveredPixels = 0;
 
     for (int y = 0; y < imgUser.height; y++) {
@@ -163,13 +151,13 @@ class _DrawingScreenState extends State<DrawingScreen> {
         img.Pixel pixelUser = imgUser.getPixelSafe(x, y);
 
         if (pixelUser.b > 0) {
-          totalPixels2++;
+          totalPixelsLetterUser++;
           //coveredPixels++;
         }
 
         // Verifica se o pixel faz parte da letra (cor vermelha, por exemplo)
         if (pixelTrace.r > 0) {
-          totalPixels1++;
+          totalPixelsLetterDashed++;
 
           // Verifica se o pixel foi coberto (cor do usuário não é transparente)
           if (pixelUser.a > 0) {
@@ -181,15 +169,16 @@ class _DrawingScreenState extends State<DrawingScreen> {
     }
 
     // Calcula a porcentagem de cobertura
-    final newCoveragePercentage = (coveredPixels / totalPixels1) * 100;
+    final newCoveragePercentage =
+        (coveredPixels / totalPixelsLetterDashed) * 100;
     bool winner = true;
-    if (newCoveragePercentage > 60) {
+    if (newCoveragePercentage > 40) {
       _showDialogImage(winner);
     } else {
       _showDialogImage(!winner);
     }
-    debugPrint('Total Pixels da letra: $totalPixels1');
-    debugPrint('Total Pixels da letra: $totalPixels2');
+    debugPrint('Total Pixels da letra tracejada: $totalPixelsLetterDashed');
+    debugPrint('Total Pixels da letra do usuário: $totalPixelsLetterUser');
     debugPrint('Pixels cobertos: $coveredPixels');
     debugPrint('Percentual: $newCoveragePercentage');
   }
@@ -209,6 +198,9 @@ class _DrawingScreenState extends State<DrawingScreen> {
               TextButton(
                 child: Text('Ok'),
                 onPressed: () {
+                  setState(() {
+                    pointsUser.clear();
+                  });
                   Navigator.of(context).pop();
                 },
               ),

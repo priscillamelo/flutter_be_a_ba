@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_be_a_ba/models/letters.dart';
+import 'package:flutter_be_a_ba/models/letters_path.dart';
+import 'package:flutter_be_a_ba/models/numbers_path.dart';
 
 class DashedLetterComponent extends CustomPainter {
   final String letter;
@@ -21,11 +22,12 @@ class DashedLetterComponent extends CustomPainter {
     canvas.translate(centerX, centerY);
 
     // Obtenha o caminho da letra do mapa de paths
-    final Path? letterPath = LetterPaths.letterPaths[letter];
+    final Path? letterPath = LettersPath.letterPaths[letter];
+    // final Path? letterPath = NumbersPath.numbersPath[letter];
 
     if (letterPath != null) {
-      // Desenhar a letra tracejada
       Path dashedPath = _createDashedPath(letterPath, 5.0, 5.0);
+      // Desenhar a letra tracejada
       canvas.drawPath(dashedPath, paint);
     }
   }
